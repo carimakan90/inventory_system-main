@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory System</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="bg-dark text-white p-3 mb-4">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <img src="path/to/logo.png" alt="Logo" class="img-fluid" style="height: 50px;">
+      </div>
+      <nav>
+        <ul class="nav">
+          <li class="nav-item"><a class="nav-link text-white" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="supplier.html">Manage Suppliers</a></li>
+          <li class="nav-item"><a class="nav-link text-white" href="filter.html">Filter Inventory</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <div class="container mt-5">
+    <h1 class="text-center">Simple Inventory System</h1>
+    <form id="inventory-form" class="mb-4">
+      <div class="form-row">
+        <div class="form-group col-md-3">
+          <input type="text" class="form-control" id="item-name" placeholder="Item Name" required>
+        </div>
+        <div class="form-group col-md-2">
+          <input type="number" class="form-control" id="item-quantity" placeholder="Quantity" required>
+        </div>
+        <div class="form-group col-md-2">
+          <input type="number" class="form-control" id="item-price" placeholder="Price" required>
+        </div>
+        <div class="form-group col-md-2">
+          <select id="item-supplier" class="form-control" required>
+            <option value="" disabled selected>Select Supplier</option>
+          </select>
+        </div>
+        <div class="form-group col-md-2">
+          <select id="item-status" class="form-control" required>
+            <option value="Pending">Pending</option>
+            <option value="Sold">Sold</option>
+            <option value="Renting">Renting</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <input type="file" class="form-control" id="item-image" accept="image/*" required>
+        </div>
+        <div class="form-group col-md-1">
+          <button type="submit" class="btn btn-primary btn-block">Add</button>
+        </div>
+      </div>
+    </form>
+    <table id="inventory-table" class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th>Item Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Supplier</th>
+          <th>Status</th>
+          <th>Image</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="d-flex justify-content-between">
+      <button class="btn btn-success" onclick="exportToJsonFile()">Export Inventory</button>
+      <button class="btn btn-info" onclick="document.getElementById('import-file').click()">Import Inventory</button>
+      <input type="file" id="import-file" accept=".json" style="display:none;">
+      <button class="btn btn-secondary" onclick="window.location.href='supplier.html'">Manage Suppliers</button>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script src="js/header.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

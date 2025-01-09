@@ -15,6 +15,7 @@ app.use(express.json());
 app.get('/inventory', (req, res) => {
   fs.readFile(dataFilePath, 'utf8', (err, data) => {
     if (err) {
+      console.error('Error reading inventory data:', err);
       return res.status(500).json({ error: 'Could not read inventory data.' });
     }
     res.json(JSON.parse(data || '[]'));
@@ -27,14 +28,23 @@ app.post('/inventory', (req, res) => {
 
   fs.readFile(dataFilePath, 'utf8', (err, data) => {
     if (err) {
+      console.error('Error reading inventory data:', err);
       return res.status(500).json({ error: 'Could not read inventory data.' });
     }
 
-    const inventory = JSON.parse(data || '[]');
+    let inventory;
+    try {
+      inventory = JSON.parse(data || '[]');
+    } catch (parseErr) {
+      console.error('Error parsing inventory data:', parseErr);
+      return res.status(500).json({ error: 'Could not parse inventory data.' });
+    }
+
     inventory.push(newItem);
 
     fs.writeFile(dataFilePath, JSON.stringify(inventory, null, 2), (err) => {
       if (err) {
+        console.error('Error saving inventory data:', err);
         return res.status(500).json({ error: 'Could not save inventory data.' });
       }
       res.status(201).json(newItem);
@@ -48,26 +58,34 @@ app.delete('/inventory/:index', (req, res) => {
 
   fs.readFile(dataFilePath, 'utf8', (err, data) => {
     if (err) {
+      console.error('Error reading inventory data:', err);
       return res.status(500).json({ error: 'Could not read inventory data.' });
     }
 
-    const inventory = JSON.parse(data || '[]');
+    let inventory;
+    try {
+      inventory = JSON.parse(data || '[]');
+    } catch (parseErr) {
+      console.error('Error parsing inventory data:', parseErr);
+      return res.status(500).json({ error: 'Could not parse inventory data.' });
+    }
+
     if (index < 0 || index >= inventory.length) {
       return res.status(400).json({ error: 'Invalid index.' });
     }
 
-    inventory.splice(index, 1);
+    const deletedItem = inventory.splice(index, 1);
 
     fs.writeFile(dataFilePath, JSON.stringify(inventory, null, 2), (err) => {
       if (err) {
+        console.error('Error saving inventory data:', err);
         return res.status(500).json({ error: 'Could not save inventory data.' });
       }
-      res.status(204).send();
+      res.status(200).json(deletedItem);
     });
   });
 });
 
-// Start the server
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

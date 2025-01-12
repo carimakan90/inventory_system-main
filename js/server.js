@@ -62,6 +62,45 @@ app.delete('/inventory/:id', (req, res) => {
   });
 });
 
+// Get all suppliers
+app.get('/suppliers', (req, res) => {
+  const query = 'SELECT * FROM suppliers';
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching suppliers:', err);
+      return res.status(500).json({ error: 'Could not fetch suppliers.' });
+    }
+    res.json(results);
+  });
+});
+
+// Add a new supplier
+app.post('/suppliers', (req, res) => {
+  const newSupplier = req.body;
+  const query = 'INSERT INTO suppliers SET ?';
+  db.query(query, newSupplier, (err, result) => {
+    if (err) {
+      console.error('Error adding supplier:', err);
+      return res.status(500).json({ error: 'Could not add supplier.' });
+    }
+    res.status(201).json({ id: result.insertId, ...newSupplier });
+  });
+});
+
+// Delete a supplier by name
+app.delete('/suppliers/:name', (req, res) => {
+  const { name } = req.params;
+  const query = 'DELETE FROM suppliers WHERE name = ?';
+  db.query(query, [name], (err, result) => {
+    if (err) {
+      console.error('Error deleting supplier:', err);
+      return res.status(500).json({ error: 'Could not delete supplier.' });
+    }
+    res.status(200).json({ message: 'Supplier deleted successfully.' });
+  });
+});
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

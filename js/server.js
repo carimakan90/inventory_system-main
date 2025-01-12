@@ -7,10 +7,10 @@ const PORT = 3000;
 
 // MySQL database connection
 const db = mysql.createConnection({
-  host: 'localhost', // Your database host
-  user: 'root', // Your database username
-  password: '', // Your database password
-  database: 'inventory_db' // Your database name
+  host: '	103.27.73.70', // Your database host (use your cPanel server's IP or hostname if not localhost)
+  user: 'leedongr_inventory_user', // Your database username
+  password: 'KeqZzMAsRIXh', // Your database password
+  database: 'leedongr_inventory_db' // Your database name
 });
 
 db.connect((err) => {

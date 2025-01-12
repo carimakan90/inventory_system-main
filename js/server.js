@@ -1,88 +1,64 @@
 const express = require('express');
-const fs = require('fs');
+const mysql = require('mysql');
 const path = require('path');
 
 const app = express();
 const PORT = 3000;
 
-// Path to the JSON file
-const dataFilePath = path.join(__dirname, 'inventory.json');
+// MySQL database connection
+const db = mysql.createConnection({
+  host: 'localhost', // Your database host
+  user: 'root', // Your database username
+  password: '', // Your database password
+  database: 'inventory_db' // Your database name
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to the MySQL database.');
+});
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
 // Get all inventory items
 app.get('/inventory', (req, res) => {
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
+  const query = 'SELECT * FROM inventory';
+  db.query(query, (err, results) => {
     if (err) {
-      console.error('Error reading inventory data:', err);
-      return res.status(500).json({ error: 'Could not read inventory data.' });
+      console.error('Error fetching inventory data:', err);
+      return res.status(500).json({ error: 'Could not fetch inventory data.' });
     }
-    res.json(JSON.parse(data || '[]'));
+    res.json(results);
   });
 });
 
 // Add a new inventory item
 app.post('/inventory', (req, res) => {
   const newItem = req.body;
-
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
+  const query = 'INSERT INTO inventory SET ?';
+  db.query(query, newItem, (err, result) => {
     if (err) {
-      console.error('Error reading inventory data:', err);
-      return res.status(500).json({ error: 'Could not read inventory data.' });
+      console.error('Error adding inventory item:', err);
+      return res.status(500).json({ error: 'Could not add inventory item.' });
     }
-
-    let inventory;
-    try {
-      inventory = JSON.parse(data || '[]');
-    } catch (parseErr) {
-      console.error('Error parsing inventory data:', parseErr);
-      return res.status(500).json({ error: 'Could not parse inventory data.' });
-    }
-
-    inventory.push(newItem);
-
-    fs.writeFile(dataFilePath, JSON.stringify(inventory, null, 2), (err) => {
-      if (err) {
-        console.error('Error saving inventory data:', err);
-        return res.status(500).json({ error: 'Could not save inventory data.' });
-      }
-      res.status(201).json(newItem);
-    });
+    res.status(201).json({ id: result.insertId, ...newItem });
   });
 });
 
-// Delete an inventory item by index
-app.delete('/inventory/:index', (req, res) => {
-  const index = parseInt(req.params.index);
-
-  fs.readFile(dataFilePath, 'utf8', (err, data) => {
+// Delete an inventory item by ID
+app.delete('/inventory/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'DELETE FROM inventory WHERE id = ?';
+  db.query(query, [id], (err, result) => {
     if (err) {
-      console.error('Error reading inventory data:', err);
-      return res.status(500).json({ error: 'Could not read inventory data.' });
+      console.error('Error deleting inventory item:', err);
+      return res.status(500).json({ error: 'Could not delete inventory item.' });
     }
-
-    let inventory;
-    try {
-      inventory = JSON.parse(data || '[]');
-    } catch (parseErr) {
-      console.error('Error parsing inventory data:', parseErr);
-      return res.status(500).json({ error: 'Could not parse inventory data.' });
-    }
-
-    if (index < 0 || index >= inventory.length) {
-      return res.status(400).json({ error: 'Invalid index.' });
-    }
-
-    const deletedItem = inventory.splice(index, 1);
-
-    fs.writeFile(dataFilePath, JSON.stringify(inventory, null, 2), (err) => {
-      if (err) {
-        console.error('Error saving inventory data:', err);
-        return res.status(500).json({ error: 'Could not save inventory data.' });
-      }
-      res.status(200).json(deletedItem);
-    });
+    res.status(200).json({ message: 'Item deleted successfully.' });
   });
 });
 
